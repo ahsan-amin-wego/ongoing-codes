@@ -1,0 +1,317 @@
+# ========== Operating System Files ==========
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+**/.AppleDouble
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# ========== IDEs and Editors ==========
+# VS Code
+.vscode/
+.history/
+.code-workspace
+
+# JetBrains (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.c9/
+.settings/
+.loadpath
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim / Emacs / Nano
+*.swp
+*.swo
+*.swn
+*~
+*.nfs*
+.#*
+
+# ========== Programming Languages ==========
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.mypy_cache/
+.pytest_cache/
+.pyre/
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+log/
+tmp/
+vendor/
+coverage/
+spec/reports/
+test/tmp/
+test/version_tmp/
+.rspec
+.redcar/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+*.hprof
+.gradle/
+build/
+target/
+bin/
+
+# Kotlin
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+build/
+
+# Go
+*.exe
+*.test
+*.out
+vendor/
+Godeps/
+bin/
+
+# Rust
+target/
+Cargo.lock
+
+# PHP
+vendor/
+*.log
+
+# C/C++
+*.obj
+*.o
+*.so
+*.exe
+*.out
+*.dll
+*.lib
+*.a
+*.lo
+*.la
+*.dSYM/
+
+# C#
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.sln.docstates
+*.ncrunch*
+*.vsp
+*.vspscc
+*.vssscc
+*.dbmdl
+*.bak
+*.cache
+*.pdb
+
+# ========== Frameworks & Platforms ==========
+# Android
+.gradle/
+build/
+captures/
+output.json
+local.properties
+*.apk
+*.ap_
+
+# iOS / Xcode
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+Assets/AssetStoreTools*
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# ========== Logs, Databases & Secrets ==========
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.env
+.env.*
+*.local
+.secret
+secrets.*
+*.pem
+*.crt
+*.key
+*.p12
+*.pfx
+
+# ========== Docker ==========
+*.pid
+*.seed
+*.pid.lock
+docker-compose.override.yml
+.env.docker
+Dockerfile.*
+docker-compose.*.yml
+
+# ========== Misc ==========
+*.bak
+*.tmp
+*.sw?
+*.log.*
+*.gz
+*.zip
+*.tar
+*.rar
+*.7z
+.idea_modules/
+.cache/
+coverage/
+*.tgz
+*.lock
+.lock-wscript
+*.orig
+*.rej
+*.bin
+
+# ========== Dependency directories ==========
+bower_components/
+jspm_packages/
+typings/
+tmp/
+temp/
+.cache/
+.terraform/
+.venv/
+
+# ========== Git ==========
+*.orig
+*.patch
+*.rej
+*.mergebackup
+*.bak
+*.backup
+*.orig.*
+.gitignore~
+
+# Prevent accidental commits of merge conflict files
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+
+# ========== Build Files ==========
+dist/
+build/
+tmp/
+release/
+releases/
+debug/
+builds/
+output/
+
+# ========== CI / CD ==========
+.circleci/
+.travis.yml
+.github/
+.gitlab-ci.yml
+.dockerignore
+
+# ========== Test and Coverage ==========
+coverage/
+*.lcov
+*.gcov
+test-results/
+test-output/
+junit.xml
+
+
