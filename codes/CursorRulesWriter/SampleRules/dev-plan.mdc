@@ -1,0 +1,142 @@
+---
+description: Standards for creating and documenting development plans with checkpoints and progress tracking.
+globs:
+  - "docs/PAY-\d+.md" # Enforce ./docs/PAY-XXX.md format
+alwaysApply: true
+---
+# Dev Plan Standards
+
+Standards for creating structured development plans to outline tasks, track progress, and facilitate collaboration.
+
+**File Naming and Location:**
+- Development plans MUST be created in the `.cursor/tasks/` directory.
+- Files MUST be named using the format `PAY-XXX.md`, where `XXX` is the corresponding Jira ticket number.
+
+> See @cursor-rules-base.mdc for base template and metadata patterns
+> See @cursor-rules-creation.mdc for rule creation standards
+> See @cursor-rules-llm-comments.mdc for comment standards (use for complex logic)
+
+/**
+ * @LLMNote: Dev plan standards that:
+ * 1. Define a consistent structure for planning development tasks
+ * 2. Incorporate checkpoints (tasks) organized into logical steps
+ * 3. Track progress implicitly using Markdown checkboxes within steps
+ * 4. Use a "Last Updated" timestamp to show recent activity
+ * 5. Improve clarity and visibility on task completion status
+ * 6. Emphasize Test-Driven Development (TDD) workflow per @go-tests.mdc
+ * 7. Facilitate handover and context sharing
+ * 8. After completing all tasks within a `### Step X:` block, pause, ask the user to confirm completed checkboxes, and wait for instruction before proceeding to the next step.
+ * 9. Recommend adding comments only for complex logic (see @cursor-rules-llm-comments.mdc), not as a default step.
+ */
+<rule>
+name: dev_plan_standards
+description: Standards for creating development plans with steps, checkpoints, and progress tracking via checkboxes and timestamps. Comments are optional unless logic is complex.
+filters:
+  - type: file_extension
+    pattern: "\\.md$"
+  - type: path
+    pattern: "\\.cursor/tasks/PAY-\\d+\\.md" # Enforce ./.cursor/tasks/PAY-XXX.md format
+
+actions:
+  - type: suggest
+    message: |
+      # Development Plan Template
+
+      Use this template to structure your development plan. Progress is tracked via the checkboxes.
+
+      ```markdown
+      # Dev Plan: [Brief Task Title]
+
+      **Ticket:** [Link to Jira/Issue Tracker]
+      **Author:** [Your Name]
+      **Last Updated:** [YYYY-MM-DD HH:MM:SS TZ]  *<-- Update this timestamp whenever progress is made*
+
+      ## 1. Overview
+
+      [Briefly describe the goal of this task, the problem it solves, or the feature it implements. Provide necessary context.]
+
+      ## 2. Requirements/Acceptance Criteria
+
+      [List the key requirements or acceptance criteria that define "done" for this task.]
+      - Requirement 1
+      - Requirement 2
+
+      ## 3. Implementation Steps
+
+      *(Progress is tracked by the checkboxes below. Steps should follow the TDD workflow: Test -> Code -> Refactor, as outlined in @go-tests.mdc. Comments should be added for complex logic per @cursor-rules-llm-comments.mdc. A completed step has all its tasks checked. After completing all tasks within a step, confirm checkbox updates with the user and wait for their instruction before starting the next step.)*
+
+      ### Step 1: [Feature/Component Name, e.g., Setup & Configuration]
+      - [ ] Task 1.1: **Test:** Write failing test for `[specific scenario]`
+      - [ ] Task 1.2: **Code:** Implement minimal code for `[specific scenario]` to pass the test
+      - [ ] Task 1.3: **Refactor:** Refactor implementation (if needed), review clarity
+
+      ### Step 2: [Feature/Component Name, e.g., Core Logic Implementation]
+      - [ ] Task 2.1: **Test:** Write failing test for `[specific scenario]`
+      - [ ] Task 2.2: **Code:** Implement minimal code for `[specific scenario]` to pass the test
+
+      ### Step 3: [Descriptive Step Name, e.g., Final Testing & Documentation]
+      - [ ] Task 3.1: Update README (if needed)
+      - [ ] Task 3.2: Remove temporary/debugging code
+      - [ ] Task 3.3: Run all relevant tests (unit, integration)
+
+      ## 4. Considerations/Notes
+
+      [Optional: Add any open questions, potential risks, dependencies, or design decisions. Note complex areas where comments were added.]
+
+      ## 5. Rollout Plan (If Applicable)
+
+      [Optional: Outline steps for deployment, feature flagging, monitoring, etc.]
+      ```
+
+metadata:
+  version: 1.0.0
+</rule>
+
+examples:
+  - name: "Example Dev Plan"
+    description: "Shows a development plan following the standard template"
+    input: |
+      # Bad: Unstructured notes without clear steps or progress tracking, mandatory comments
+      # Task: Implement User Login
+      # Need to add API endpoint, create user model, add tests. Must add comments.
+      # Done setting up model.
+
+      # Good: Structured plan using the template with progress tracked via checkboxes and TDD emphasis
+      # Dev Plan: Implement User Login Endpoint
+
+      **Ticket:** [PROJ-123](https://jira.example.com/browse/PROJ-123)
+      **Author:** Jane Doe
+      **Last Updated:** 2023-10-27 15:30:00 UTC
+
+      ## 1. Overview
+      Implement the `/login` API endpoint to allow users to authenticate using email and password.
+
+      ## 2. Requirements/Acceptance Criteria
+      - Endpoint accepts POST requests with email/password.
+      - Returns JWT token on success.
+      - Returns appropriate error codes on failure (401, 400, 500).
+      - Password hashing uses bcrypt.
+
+      ## 3. Implementation Steps
+
+      *(Progress is tracked by the checkboxes below. Steps follow TDD. Step 1 is complete. Comments added for complex auth logic.)*
+
+      ### Step 1: Setup & Data Model
+      - [x] Task 1.1: Define User model struct
+      - [x] Task 1.2: Add database migration for users table
+      - [x] Task 1.3: Configure JWT signing key
+
+      ### Step 2: API Endpoint Logic
+      - [x] Task 2.1: **Test:** Write failing integration test for `POST /login` (success case)
+      - [x] Task 2.2: **Code:** Implement handler, user lookup, password verification, JWT generation
+      - [ ] Task 2.3: **Test:** Add failure cases (401, 400) to integration test
+      - [ ] Task 2.4: **Code:** Implement error handling and validation for failure cases
+      - [ ] Task 2.5: **Refactor:** Clean up handler logic, review clarity
+
+      ### Step 3: Helper Function Testing
+      - [ ] Task 3.1: **Test:** Write unit tests for password verification helper function
+      - [ ] Task 3.2: **Code:** Implement helper function
+
+      ### Step 4: Final Checks & Documentation
+      - [ ] Task 4.1: Update API documentation (Swagger/OpenAPI) if needed
+      - [ ] Task 4.2: Remove temporary code

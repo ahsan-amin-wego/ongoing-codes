@@ -1,0 +1,117 @@
+---
+description: "Generates a PR description template based on the structure of the official template (`.github/PULL_REQUEST_TEMPLATE.md`)."
+globs: []
+alwaysApply: false
+---
+# PR Description Template
+
+Generates a Pull Request description template based on the section structure (Context, Approach, Testing, Checklist) from the official template at `.github/PULL_REQUEST_TEMPLATE.md`.
+
+> See @cursor-rules-base.mdc for base template and metadata patterns
+> See @cursor-rules-creation.mdc for creation standards
+> References structure from `.github/PULL_REQUEST_TEMPLATE.md`
+
+/**
+ * @LLMNote: PR Description template generator that:
+ * 1. Uses the structure from `.github/PULL_REQUEST_TEMPLATE.md` (Context, Approach, Testing, Checklist).
+ * 2. Provides a ready-to-use template reflecting the repository's standard PR structure.
+ * 3. Includes the official checklist from the GitHub template.
+ * 4. **Generation Guidance:**
+ *    - Base the description primarily on the Jira ticket (ask for it if needed) or the associated dev plan (`.cursor/tasks/PAY-XXX.md`).
+ *    - When populating the Approach section based on a dev plan, DO NOT explicitly mention the source document (e.g., "outlined in docs/PAY-XXX.md") and DO NOT use prefixes like "Test:", "Code:", or "Refactor:" for the steps.
+ *    - Do not include specific file paths in the Approach steps unless essential for understanding the change.
+ *    - Do not include routine final steps (like code reviews, formatting checks, or running all tests) in the Approach section. Focus on direct implementation actions.
+ *    - Ensure generated content uses correct Markdown formatting with actual newlines, especially if it will be passed to other tools (like `gh` CLI or MCP tools via temporary files, see @core-engineering-standards.mdc).
+ */
+<rule>
+name: pr_description_template # Simplified name
+description: Generates a PR template using the official structure from .github/PULL_REQUEST_TEMPLATE.md.
+filters: [] # No specific filters, intended for manual use or general guidance
+actions:
+  - type: suggest
+    message: |
+      # PR Description Template
+
+      Please fill out the following sections for your PR description, following the structure from the repository template:
+
+      ```markdown
+      ### Context
+
+      [Link to Jira/Issue Tracker - If multiple, list each on a new line]
+
+      [Provide a brief overview of the changes and why they are needed, referencing Sentry/Figma/Slack if relevant.]
+
+      ### Approach
+      [Outline the steps taken or the strategy used to implement the change. Explain trade-offs and include references if applicable.]
+      1.  Step 1 description...
+      2.  Step 2 description...
+      3.  ...
+
+      ### Testing
+
+      <!-- 
+      Add relevant screenshots, diagrams, or recordings here if applicable.
+      -->
+
+      ### Checklist 
+      <!--- This checklist is from .github/PULL_REQUEST_TEMPLATE.md --->
+      - [ ] I have commented on my code, particularly in hard-to-understand areas, or given more context in my PR.
+      - [ ] I tested the changes according to the acceptance criteria
+        - [ ] Local
+        - [ ] Staging
+      - [ ] Any dependent changes have been merged
+      - [ ] I have made corresponding changes to the documentation
+        - [ ] Wego-docs
+        - [ ] Postman collection
+      - [ ] I have added index(es) for the new column(s) (if applicable), handled `deleted_at is NULL` query performance
+      - [ ] I have informed related teams regarding the DB schema/log schema/breaking changes
+      - [ ] QA has approved the changes (remove if not applicable)
+      ```
+metadata:
+  version: 1.0.0
+</rule>
+
+examples:
+  - name: "Generating Standard PR Template"
+    description: "Shows the rule generating a template based on the official structure."
+    input: |
+      # Example trigger (e.g., manually invoking the rule)
+      # The rule would then suggest the following template:
+
+      # PR Description Template
+
+      Please fill out the following sections for your PR description, following the structure from the repository template:
+
+      ```markdown
+      ### Context
+
+      [Link to Jira/Issue Tracker - If multiple, list each on a new line]
+
+      [Provide a brief overview of the changes and why they are needed, referencing Sentry/Figma/Slack if relevant.]
+
+      ### Approach
+      [Outline the steps taken or the strategy used to implement the change. Explain trade-offs and include references if applicable.]
+      1.  Step 1 description...
+      2.  Step 2 description...
+      3.  ...
+
+      ### Testing
+
+      <!-- 
+      Add relevant screenshots, diagrams, or recordings here if applicable.
+      -->
+
+      ### Checklist 
+      <!--- This checklist is from .github/PULL_REQUEST_TEMPLATE.md --->
+      - [ ] I have commented on my code, particularly in hard-to-understand areas, or given more context in my PR.
+      - [ ] I tested the changes according to the acceptance criteria
+        - [ ] Local
+        - [ ] Staging
+      - [ ] Any dependent changes have been merged
+      - [ ] I have made corresponding changes to the documentation
+        - [ ] Wego-docs
+        - [ ] Postman collection
+      - [ ] I have added index(es) for the new column(s) (if applicable), handled `deleted_at is NULL` query performance
+      - [ ] I have informed related teams regarding the DB schema/log schema/breaking changes
+      - [ ] QA has approved the changes (remove if not applicable)
+      ```

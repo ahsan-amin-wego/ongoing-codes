@@ -1,0 +1,143 @@
+---
+description: Base template and common patterns for Cursor rules
+globs: [".cursor/rules/*.mdc"]
+alwaysApply: true
+---
+# Cursor Rules Base Template
+
+Base template and common patterns for all Cursor rules.
+
+> See @cursor-rules-llm-comments.mdc for LLM-friendly comment standards
+
+/**
+ * @LLMNote: Base template for all Cursor rules that:
+ * 1. Defines required structure and metadata
+ * 2. Provides example patterns
+ * 3. Ensures consistency across rules
+ */
+<rule>
+name: cursor_rules_base
+description: Base template and common patterns for rule creation
+filters:
+  - type: file_extension
+    pattern: "\\.mdc$"
+  - type: path
+    pattern: "\\.cursor/rules/.*"
+
+actions:
+  - type: suggest
+    message: |
+      # Base Rule Template
+      
+      1. Required Front Matter (MUST INCLUDE):
+         ```markdown
+         ---
+         description: One-line description  # Required: Brief, clear purpose
+         globs: [patterns]                 # Required: File patterns this rule applies to
+         alwaysApply: true                 # Required: Controls automatic rule application
+         ---
+         ```
+
+      2. Required Structure:
+         ```markdown
+         # Title (Must match filename)
+
+         Brief Description
+
+         > Cross-references to related rules using @rule-name.mdc format
+
+         /**
+          * @LLMNote: Rule purpose and scope
+          * 1. What this rule enforces
+          * 2. When it should be applied
+          * 3. Key patterns it introduces
+          */
+         <rule>
+         name: rule_name                # Required: Unique identifier
+         description: Brief description  # Required: Clear purpose
+         filters: []                    # Required: Even if empty
+         actions: []                    # Required: Even if empty
+         metadata:
+           version: X.Y                 # Required: Semantic versioning
+         </rule>
+
+         examples: []                   # Required: At least one example
+         ```
+
+      3. Example Pattern (MUST INCLUDE):
+         ```yaml
+         examples:
+           - name: "Name"              # Required: Descriptive name
+             description: "Purpose"     # Required: What the example shows
+             input: |
+               # Bad
+               [anti-pattern]          # Required: Show what not to do
+               
+               # Good
+               [pattern]               # Required: Show correct implementation
+         ```
+
+      4. Version Control:
+         - Use semantic versioning (X.Y.Z)
+         - Increment version on changes:
+           - Major (X): Breaking changes
+           - Minor (Y): New features
+           - Patch (Z): Bug fixes
+
+metadata:
+  version: 1.2
+</rule>
+
+examples:
+  - name: "Complete Rule Structure"
+    description: "Shows all required elements with proper metadata"
+    input: |
+      # Bad: Missing required elements
+      ---
+      description: A rule
+      ---
+      <rule>
+      name: example
+      </rule>
+
+      # Good: Complete structure with all required elements
+      ---
+      description: Clear description of rule purpose
+      globs: ["src/**/*.go"]
+      alwaysApply: true
+      ---
+      # Example Rule
+
+      Comprehensive description of the rule's purpose and scope.
+
+      > See @cursor-rules-base.mdc for base patterns
+      > See @cursor-rules-creation.mdc for creation standards
+
+      /**
+       * @LLMNote: Example rule that demonstrates:
+       * 1. Complete front matter
+       * 2. Required metadata
+       * 3. LLM-friendly documentation
+       */
+      <rule>
+      name: example_rule
+      description: Clear purpose and scope
+      filters:
+        - type: file_extension
+          pattern: "\\.go$"
+      actions:
+        - type: suggest
+          message: "Follow Go standards"
+      metadata:
+        version: 1.0
+      </rule>
+
+      examples:
+        - name: "Pattern Example"
+          description: "Shows implementation of rule patterns"
+          input: |
+            # Bad
+            [anti-pattern with explanation]
+            
+            # Good
+            [correct pattern with explanation] 

@@ -1,0 +1,170 @@
+---
+description: Standards for creating and updating Cursor rule files
+globs: [".cursor/rules/*.mdc"]
+alwaysApply: true
+---
+# Cursor Rules Creation
+
+Standards for creating and updating Cursor rule files.
+
+> See @cursor-rules-base.mdc for base template and metadata patterns
+> See @cursor-rules-location.mdc for file placement standards
+> See @cursor-rules-llm-comments.mdc for comment standards
+
+/**
+ * @LLMNote: Standards for creating and updating rules that:
+ * 1. Enforce consistent structure and metadata
+ * 2. Ensure comprehensive documentation
+ * 3. Maintain rule quality and clarity
+ */
+<rule>
+name: cursor_rules_creation
+description: Standards for creating and updating Cursor rule files
+filters:
+  - type: file_extension
+    pattern: "\\.mdc$"
+  - type: path
+    pattern: "\\.cursor/rules/.*"
+
+actions:
+  - type: suggest
+    message: |
+      # Rule Creation Standards
+
+      1. Required Front Matter (Checklist):
+         ```yaml
+         ---
+         description:  # ✓ One clear sentence
+         globs:       # ✓ Specific file patterns
+         alwaysApply: # ✓ Boolean value
+         ---
+         ```
+         - [ ] Description is concise and clear
+         - [ ] Globs match intended files
+         - [ ] AlwaysApply is set appropriately
+
+      2. File Structure (Checklist):
+         ```markdown
+         # Title (matches filename)
+
+         Brief Description
+
+         > Cross-references using @rule-name.mdc
+
+         /**
+          * @LLMNote: Rule purpose and implementation guide
+          * 1. What patterns this rule enforces
+          * 2. How to implement the patterns
+          * 3. Common pitfalls to avoid
+          */
+         <rule>
+         name: rule_name
+         description: Brief description
+         filters: []
+         actions: []
+         metadata:
+           version: X.Y.Z  # Semantic versioning
+         </rule>
+
+         examples: []
+         ```
+         - [ ] Title matches filename exactly
+         - [ ] Description is comprehensive
+         - [ ] Cross-references are valid
+         - [ ] LLM comments are present
+         - [ ] Metadata version follows semver
+         - [ ] Examples are included
+
+      3. Content Requirements (Checklist):
+         - [ ] Title matches filename
+         - [ ] Description is concise
+         - [ ] Filters are specific
+         - [ ] Examples show both patterns
+         - [ ] Structure follows template
+         - [ ] LLM comments are present
+         - [ ] Complex patterns documented
+         - [ ] Rule relationships explained
+         - [ ] Version is incremented
+         - [ ] Metadata is complete
+
+      4. Cross-References (Checklist):
+         - [ ] Use @rule-name.mdc format
+         - [ ] Context is provided
+         - [ ] Links are valid
+         - [ ] Dependencies documented
+
+      5. Quality Control:
+         - Review against base template
+         - Verify all required elements
+         - Test glob patterns
+         - Check cross-references
+         - Validate examples
+         - Update version number
+
+metadata:
+  version: 1.3
+</rule>
+
+examples:
+  - name: "Complete Rule Creation"
+    description: "Shows creation of a rule with all required elements"
+    input: |
+      # Bad: Incomplete rule
+      ---
+      description: A rule for Go
+      ---
+      <rule>
+      name: go
+      description: Go standards
+      </rule>
+
+      # Good: Complete rule with all requirements
+      ---
+      description: Standards for Go code organization and patterns
+      globs: ["src/**/*.go", "tests/**/*.go"]
+      alwaysApply: true
+      ---
+      # Go Standards
+
+      Comprehensive standards for Go code organization, patterns, and best practices.
+
+      > See @cursor-rules-base.mdc for base patterns
+      > See @cursor-rules-creation.mdc for creation standards
+
+      /**
+       * @LLMNote: Go standards that:
+       * 1. Define code organization
+       * 2. Establish naming conventions
+       * 3. Set type usage patterns
+       */
+      <rule>
+      name: go_standards
+      description: Standards for Go development
+      filters:
+        - type: file_extension
+          pattern: "\\.go$"
+      actions:
+        - type: suggest
+          message: "Follow Go best practices"
+      metadata:
+        version: 1.0.0
+      </rule>
+
+      examples:
+        - name: "Type Definition"
+          description: "Shows proper type definition patterns"
+          input: |
+            # Bad: Implicit any and missing documentation
+            function process(data) {
+              return data.value;
+            }
+            
+            # Good: Explicit types and documentation
+            /**
+             * Process data with validation
+             * @param {DataType} data - Input data to process
+             * @returns {ResultType} Processed result
+             */
+            function process(data: DataType): ResultType {
+              return validateAndProcess(data);
+            } 

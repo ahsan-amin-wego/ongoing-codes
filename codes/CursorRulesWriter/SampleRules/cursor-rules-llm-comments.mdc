@@ -1,0 +1,220 @@
+---
+description: Standards for writing LLM-optimized code comments and documentation for Go projects
+globs: ["**/*.go"]
+alwaysApply: true
+---
+# LLM-Friendly Comments (Go)
+
+Standards for writing comments in Go code that are optimized for LLM comprehension and analysis.
+
+> See @cursor-rules-base.mdc for base template and metadata patterns
+> See @cursor-rules-creation.mdc for rule creation standards
+> See @go-style.mdc for general Go style
+
+/**
+ * @LLMNote: This rule defines standards for LLM-friendly comments in Go:
+ * 1. Establishes comment patterns for packages, functions, and complex logic
+ * 2. Provides examples of good and bad comment practices using Go conventions
+ * 3. Ensures consistency in documentation across the Go codebase
+ */
+<rule>
+name: llm_friendly_comments
+description: Standards for writing LLM-optimized code comments in Go
+filters:
+  - type: path
+    pattern: ".*\.go$"
+
+actions:
+  - type: suggest
+    message: |
+      # LLM Comment Standards (Go)
+
+      1. Package-Level Comments (Place in `doc.go` or any file in the package):
+         ```go
+         // Package payment handles payment processing logic, including validation
+         // and communication with external gateways.
+         //
+         // @LLMNote: This package orchestrates the payment flow:
+         // 1. Receives payment requests
+         // 2. Validates input data using the validation service
+         // 3. Interacts with the appropriate payment gateway (e.g., Stripe, PayPal)
+         // 4. Records transaction results
+         //
+         // Dependencies:
+         // - internal/validation: For input validation.
+         // - internal/database: For transaction logging.
+         // - pkg/paymentgateway: Interface for external gateways.
+         package payment
+         ```
+         - Use standard Go package documentation format.
+         - Clearly describe the package's purpose and scope.
+         - Use `@LLMNote` block for high-level architecture, flow, or key concepts.
+         - List major internal or external dependencies.
+
+      2. Function/Method Comments (Godoc):
+         ```go
+         import "context"
+
+         // PaymentDetails holds the necessary information for a payment.
+         type PaymentDetails struct {
+             // ... fields ...
+         }
+
+         // PaymentResult represents the outcome of a payment attempt.
+         type PaymentResult struct {
+            // ... fields ...
+         }
+
+         // ProcessPayment attempts to process a payment using the provided details.
+         // It validates the input, interacts with the payment gateway, and returns the result.
+         //
+         // ctx: Context for managing cancellation and timeouts.
+         // details: The payment information to be processed.
+         //
+         // Returns a PaymentResult on success or an error if processing fails.
+         // Potential errors include validation errors (e.g., ErrInvalidCardNumber)
+         // or gateway communication errors.
+         //
+         // @LLMNote: Core payment processing function:
+         // 1. Calls validation service.
+         // 2. Selects appropriate gateway based on details.
+         // 3. Executes payment transaction via gateway interface.
+         // 4. Handles potential retries internally (not shown).
+         func ProcessPayment(ctx context.Context, details PaymentDetails) (*PaymentResult, error) {
+             // ... implementation ...
+         }
+         ```
+         - Use standard godoc format (`// FunctionName ...`).
+         - Start with the function name.
+         - Describe what the function does, its parameters, and return values.
+         - Explicitly mention potential error types or conditions.
+         - Use `@LLMNote` within the godoc block for implementation details, algorithms, or multi-step logic relevant to understanding the function's behavior.
+
+      3. Complex Logic Comments:
+         ```go
+         // @LLMNote: State machine for managing order status transitions.
+         // Allowed transitions: PENDING -> PROCESSING -> SHIPPED -> DELIVERED
+         // Invalid transitions will result in an error.
+         var orderStateTransitions = map[OrderStatus][]OrderStatus{
+            StatusPending:    {StatusProcessing},
+            StatusProcessing: {StatusShipped},
+            StatusShipped:    {StatusDelivered},
+            // DELIVERED is a terminal state
+         }
+
+         // @LLMNote: Implements exponential backoff for retrying API calls.
+         // Max retries: 5
+         // Initial delay: 500ms
+         // Max delay: 10s
+         // Factor: 2.0
+         func retryWithBackoff(ctx context.Context, operation func() error) error {
+             // ... implementation using time.Sleep and randomization ...
+         }
+         ```
+         - Use `// @LLMNote:` for inline comments explaining specific algorithms, state machines, complex conditional blocks, or non-obvious logic.
+         - Include key parameters or constraints (e.g., retry counts, allowed states).
+
+      4. Integration Points:
+         ```go
+         // @LLMNote: Integration with the external 'Acme' notification service API.
+         // This function sends notifications via Acme's REST API.
+         //
+         // Required Configuration (Environment Variables):
+         // - ACME_API_KEY: The API key for authentication.
+         // - ACME_ENDPOINT_URL: The base URL for the Acme API.
+         //
+         // API Rate Limits:
+         // - 100 requests per minute.
+         // - Refer to Acme documentation for details on bursting.
+         // Circuit breaker ('acme_notifier') is used to handle failures.
+         func sendAcmeNotification(ctx context.Context, message string) error {
+             // ... implementation using an HTTP client and circuit breaker ...
+         }
+         ```
+         - Use godoc or `// @LLMNote:` to document interactions with external systems (APIs, databases, services).
+         - List required configuration (env vars, config files).
+         - Note important constraints like rate limits, authentication methods, or specific protocols used.
+         - Mention resilience patterns employed (e.g., circuit breakers, retries).
+
+metadata:
+  version: 1.1
+</rule>
+
+examples:
+  - name: "Package-Level Comments"
+    description: "Shows proper Go package documentation with LLMNote"
+    input: |
+      # Bad
+      package processor // No package documentation
+
+      // processor.go
+      type Processor struct{}
+      func (p *Processor) Process() {}
+
+      # Good
+      // Package processor provides core data processing capabilities.
+      // It handles ingestion, transformation, and output formatting.
+      //
+      // @LLMNote: This package uses a pipeline pattern:
+      // Ingest -> Validate -> Transform -> Format -> Output
+      // Each stage is pluggable.
+      //
+      // Dependencies:
+      // - internal/datasource
+      // - internal/validation
+      package processor
+
+      // processor.go
+      // ... rest of the code ...
+
+  - name: "Complex Logic Comments"
+    description: "Shows documentation of complex Go functions with LLMNote"
+    input: |
+      # Bad
+      // Process the data
+      func processData(data InputData) (OutputData, error) {
+          // Validate it first
+          valid, err := validate(data)
+          if !valid {
+              return OutputData{}, err // Error handling might be unclear
+          }
+          // Now transform
+          transformed := transform(data)
+          // Maybe retry if something fails?
+          // ... complex conditional logic ...
+          return format(transformed), nil
+      }
+
+      # Good
+      // ProcessData handles the full lifecycle of data processing.
+      // It validates, transforms, and formats the input data.
+      //
+      // @LLMNote: Data processing flow:
+      // 1. Input validation using rules engine.
+      // 2. Transformation based on data type (uses strategy pattern).
+      // 3. Formatting for downstream consumption.
+      // 4. Includes retry logic (3 attempts) for transient transformation errors.
+      //
+      // Returns OutputData on success, or an error indicating validation
+      // or processing failure (e.g., ErrValidationFailed, ErrTransformFailed).
+      func ProcessData(ctx context.Context, data InputData) (OutputData, error) {
+          // @LLMNote: Validation Phase - uses configurable rules.
+          isValid, err := validate(ctx, data)
+          if err != nil {
+               return OutputData{}, fmt.Errorf("validation step failed: %w", err)
+          }
+          if !isValid {
+              return OutputData{}, ErrValidationFailed // Predefined error
+          }
+
+          // @LLMNote: Transformation Phase - uses strategy pattern based on data.Type.
+          // Retry logic implemented within the transformWithRetry helper.
+          transformedData, err := transformWithRetry(ctx, data)
+          if err != nil {
+               return OutputData{}, fmt.Errorf("transformation step failed: %w", err) // Wrap error
+          }
+
+          // @LLMNote: Formatting Phase
+          output := format(transformedData)
+          return output, nil
+      } 

@@ -1,0 +1,113 @@
+---
+description: Defines the standard development workflow from Jira ticket to PR creation and Jira status updates.
+globs: [] # This rule defines a workflow, not applied based on file patterns
+alwaysApply: false # Should be triggered by user intent, not automatically
+---
+# Standard Development Workflow
+
+Defines the sequence of actions for starting work on a Jira ticket, creating a dev plan, implementing code, creating a draft PR, and updating the Jira ticket status.
+
+> See @dev-plan-standards.mdc for creating dev plans
+> See @pr-description.mdc for generating PR descriptions
+> See @core-engineering-standards.mdc for PR creation tool workflow (MCP/gh, temp file)
+
+/**
+ * @LLMNote: Standard Development Workflow Orchestration:
+ * This rule guides the AI through the typical development process based on developer initiation.
+ *
+ * 1.  **Fetch Jira Info:**
+ *     - When the developer asks to work on a ticket (e.g., "Fetch info for PAY-XXX"), retrieve ticket details using `mcp_Atlassian_jira_get_issue`. Present the key information (title, description, status, assignee).
+ * 2.  **Update Jira Status:**
+ *     - Once the developer confirms they are starting work, use `mcp_Atlassian_jira_transition_issue` with the ticket key and `transition_id: "51"` (In Progress).
+ *     - Inform the developer that the ticket has been moved to "In Progress".
+ * 3.  **Prompt User for Self-Assignment:**
+ *     - **CRITICAL PAUSE POINT: Halt execution.**
+ *     - Inform the user that the ticket has been moved to "In Progress".
+ *     - Explicitly ask the user to assign the ticket to themselves using the Jira URL (`https://wego.atlassian.net/browse/[TICKET_KEY]`).
+ *     - **MUST WAIT FOR USER CONFIRMATION:** Wait for user confirmation that they have assigned the ticket before proceeding.
+ * 4.  **Create Dev Plan:**
+ *     - Prompt the developer to confirm creating a dev plan file at `.cursor/tasks/PAY-XXX.md`.
+ *     - Use the fetched Jira description as the basis for the "Overview" and potentially "Requirements" sections of the dev plan, following the `@dev-plan.mdc` template. Collaborate closely with the developer to refine the plan, clarifying any ambiguities.
+ * 5.  **Implement Code:**
+ *     - Assist the developer with coding tasks as requested, following the dev plan steps. Apply relevant coding standards (@go-style, @core-engineering-standards, @go-tests). Use TDD workflow. Commit changes frequently (following general Git best practices or user-specific rules if available).
+ * 6.  **Create Draft PR:**
+ *     - When the developer indicates they are ready to create a draft PR:
+ *       - Collaborate with the developer to generate the PR description using `@pr-description.mdc`, sourcing content from the Jira ticket and/or dev plan.
+ *       - Follow the PR creation workflow defined in `@core-engineering-standards.mdc` (Section 4):
+ *         - Create the temporary description file (`.cursor/tasks/PAY-XXX.pr.md`).
+ *         - Attempt PR creation using `mcp_GitHub_create_pull_request` first, ensuring the `draft: true` parameter is set.
+ *         - If MCP fails, fallback to `gh pr create --draft --body-file ...` using single quotes for title/args.
+ *         - **Crucially: Ask for explicit developer confirmation** before executing the PR creation command.
+ *       - Delete the temporary file upon successful creation.
+ *       - Confirm the draft PR creation with the developer.
+ *     - **CRITICAL PAUSE POINT: Halt execution.**
+ *     - **MUST ASK DEVELOPER FOR CONFIRMATION:** Ask the developer *explicitly*: "Draft PR created successfully. Shall I move the Jira ticket `[TICKET_KEY]` to 'Code Review'?"
+ * 7.  **Transition to Code Review (Conditional):**
+ *     - **Only if the developer confirms** (responds affirmatively to the question in Step 6):
+ *       - Use `mcp_Atlassian_jira_transition_issue` with the ticket key and `transition_id: "91"` (Code Review).
+ *       - Inform the user that the ticket has been moved to Code Review.
+ *     - If the developer declines, the workflow concludes without changing the Jira status.
+ *     - **DO NOT PROCEED WITH THIS STEP WITHOUT EXPLICIT 'YES' CONFIRMATION FROM PREVIOUS STEP.**
+ *     - Note: Moving the ticket to "Code Review" is now conditional and happens only after PR creation and developer confirmation.
+ */
+<rule>
+name: standard_development_workflow
+description: Orchestrates the process from fetching Jira info to implementing code and creating a draft PR, driven by developer requests.
+filters: [] # Workflow rule
+actions:
+  - type: suggest
+    message: |
+      # Standard Development Workflow Guide
+
+      This outlines the typical AI-assisted steps when starting development based on a Jira ticket:
+
+      1.  **Fetch Jira Info:** Ask the AI to retrieve information for a specific Jira ticket (e.g., "Get details for PAY-XXX").
+      2.  **Start Work & Update Jira:** Confirm you are starting work. The AI will then automatically transition the ticket to "In Progress" (ID: 51).
+      3.  **Assign Ticket (Manual Action Required):**
+          - The AI will provide the Jira link. Please assign the ticket `[TICKET_KEY]` to yourself.
+          - **Confirm here once assigned.** The workflow pauses until you confirm.
+      4.  **Create Dev Plan:** Collaborate with the AI to create/refine the dev plan (`.cursor/tasks/PAY-XXX.md`) based on Jira details, following `@dev-plan.mdc` standards.
+      5.  **Implement Code:** Work with the AI to implement the code according to the dev plan, using TDD (@go-tests) and team standards (@core-engineering-standards, @go-style). Commit changes frequently.
+      6.  **Create Draft PR:** Initiate the draft PR creation. The AI will:
+          - Collaborate on the PR description (@pr-description.mdc).
+          - Follow the process in `@core-engineering-standards.mdc` (temp file, MCP/gh fallback).
+          - **Ask for your final confirmation before creating the PR.**
+      7.  **Move to Code Review (Confirmation Required):**
+          - After the draft PR is created, the AI will ask: "Shall I move the Jira ticket `[TICKET_KEY]` to 'Code Review'?"
+          - Confirm if you want the Jira status updated.
+
+metadata:
+  version: 1.0.0
+</rule>
+
+examples:
+  - name: "Starting Workflow"
+    description: "Illustrates how the workflow is triggered and the initial steps including the user assignment prompt."
+    input: |
+      # User Request:
+      "Let's start working on PAY-1600."
+
+      # AI Actions (following the LLMNote):
+      # 1. Identify Ticket: PAY-1600. Construct URL: https://wego.atlassian.net/browse/PAY-1600
+      # 2. Transition PAY-1600 to "In Progress" (ID 51) via mcp_Atlassian_jira_transition_issue.
+      # 3. PAUSE & Inform User: "Ticket PAY-1600 has been moved to In Progress. Please assign it to yourself here: https://wego.atlassian.net/browse/PAY-1600. Let me know when you're done."
+      # (Workflow pauses for user confirmation)
+      # 4. Fetch PAY-1600 description via mcp_Atlassian_jira_get_issue.
+      # 5. Propose creating `.cursor/tasks/PAY-1600.md` based on Jira description and @dev-plan-standards template.
+      # (Workflow pauses again for user collaboration on the dev plan)
+
+  - name: "Completing Workflow (PR & Jira Update)"
+    description: "Illustrates the final steps after coding is done."
+    input: |
+      # User Request (after coding is complete):
+      "Okay, the implementation for PAY-1600 is done and tests pass. Let's create the PR."
+
+      # AI Actions (following the LLMNote):
+      # 1. Generate PR Description using @pr-description, based on PAY-1600 and dev plan.
+      # 2. Follow @core-engineering-standards.mdc workflow:
+      #    - Create `.cursor/tasks/PAY-1600.pr.md`.
+      #    - Attempt `mcp_GitHub_create_pull_request` (draft=true).
+      #    - (If MCP fails) Fallback to `gh pr create --draft --body-file ...`.
+      #    - Delete `.cursor/tasks/PAY-1600.pr.md`.
+      # 3. On successful PR creation, transition PAY-1600 to "Code Review" (ID 91) via mcp_Atlassian_jira_transition_issue.
+      # 4. Inform user: "Draft PR created for PAY-1600 and the ticket has been moved to Code Review." 

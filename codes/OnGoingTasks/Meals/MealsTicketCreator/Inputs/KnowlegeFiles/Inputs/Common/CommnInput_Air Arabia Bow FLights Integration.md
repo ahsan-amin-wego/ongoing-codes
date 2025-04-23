@@ -1,0 +1,23 @@
+### 🔄 Wego vs Provider API Flow Comparison
+
+| **Stage**                                                                                               | **Provider Flow**                                                                                                                                                                                                 | **Provider (e.g., Air Arabia)**                     |
+| ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 🟦 **Wego Search**                                                                                      | - `Auth API` → Get token (used in Search API)  <br>- `Search` → Get all flights  <br>- `GetPrice` → For each flight, get accurate price (currently only round trip)                                               |                                                     |
+| 🟨 **Compare Page**  <br><small><i>Based on selected itinerary, fetch branded fares & rules</i></small> | - `getPriceRequestAPI` → Send itinerary  <br>- `GetPriceWithBrandedFare` → Add brand info  <br>- `Baggage` → Pass itinerary                                                                                       |                                                     |
+| ✏️ **Pax Detail Page**  <br><small><i>After selecting a fare family</i></small>                         | - **Fare Rule** → Hardcoded in Fare Rule class  <br>- **Dynamic Forms** → Controlled by CMS                                                                                                                       |                                                     |
+| ✅ **After Entering Pax Detail**                                                                         | - `getPriceRequestAPI`  <br>- `GetPriceWithBrandedFare`  <br>- `Baggage`  <br>- `Meal`  <br>- `Seat`  <br>- `PriceWithAncillaries` → Send selected ancillaries                                                    | - `Booking` → No API; total and status manually set |
+| 💳 **Ticketing Page**  <br><small><i>After entering payment</i></small>                                 | - `Fare.Available` → Set default as true                                                                                                                                                                          |                                                     |
+| 🔒 **Enter Payment 3DS**                                                                                | - `Validate Booking` → Return constant  <br>- `Ticketing` → `Book API` → Send itinerary, pax, payment info, and amount  <br>Returns:  <br> • `ticketing status = 3` if success  <br> • `BookingReferenceID` = PNR |                                                     |
+| 📄 **Booking Confirmation**                                                                             | - Status = In-progress                                                                                                                                                                                            |                                                     |
+| 🔁 **QCT Crawler**                                                                                      | - Run every 5 minutes  <br>- Continuously checks actual ticket status                                                                                                                                             |                                                     |
+| 📥 **GetReservationByPNR**                                                                              | - API call to fetch booking by PNR                                                                                                                                                                                |                                                     |
+
+---
+
+### 🧾 Additional Info
+
+- **TPS Limit**: `30`
+    
+- **Postman Collection**: [Airarabia prod](https://wegotravel.postman.co/workspace/Flights~0db44570-5a4a-408e-b550-7ad29223a19b/collection/12581956-021de559-1b67-4e08-a759-82085abcafe0?action=share&creator=20363127&active-environment=25415493-a5dc4f75-9bcb-426a-bdc2-5547397ff6ab)
+    
+- **Jira Link**: [FBOWINT-23: Air Arabia API Integration](https://wego.com) _(closed)_

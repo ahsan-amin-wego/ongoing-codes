@@ -1,0 +1,115 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Cursor Rules Generator
+
+A powerful rule for creating custom Cursor rules based on specific requirements, following the structure defined in the SampleRules directory.
+
+> See @cursor-rules-base.mdc for base template and metadata patterns
+> See @cursor-rules-creation.mdc for rule creation standards
+> See @cursor-rules-llm-comments.mdc for comment standards
+
+/**
+ * @LLMNote: Rule generation orchestrator that:
+ * 1. Creates new rules based on user requirements
+ * 2. Uses the format from SampleRules directory
+ * 3. Adapts to specific languages when requested
+ * 4. Outputs new rules to the output directory
+ * 5. Ensures all rules follow the standard structure and metadata requirements
+ * 6. Incorporates proper examples with "Bad" and "Good" implementations
+ * 7. Follows the dev plan structure from @dev-plan.mdc when appropriate
+ */
+<rule>
+name: cursor_rules_generator
+description: Creates custom Cursor rules based on user requirements, following the SampleRules format
+filters:
+  - type: file_extension
+    pattern: "\\.mdc$"
+
+actions:
+  - type: suggest
+    message: |
+      # Rule Generation Guide
+
+      To create a new Cursor rule, please provide the following information:
+
+      1. **Rule Purpose:** What problem or standard are you addressing?
+      2. **Target Language:** Which programming language (if specific)?
+      3. **File Patterns:** Which file types should the rule apply to?
+      4. **Key Requirements:** What specific patterns or standards should be enforced?
+      5. **Example Cases:** Can you provide examples of what is considered good/bad?
+
+      I'll help you create a rule file in the output directory that follows the standard format from the SampleRules, including:
+
+      ```markdown
+      ---
+      description: "One-line clear description"
+      globs: ["file/patterns/*.ext"]
+      alwaysApply: true
+      ---
+      # Rule Title
+
+      Comprehensive description of the rule.
+
+      > See @related-rules.mdc for related patterns
+
+      /**
+       * @LLMNote: Purpose and implementation details for AI
+       */
+      <rule>
+      name: rule_name
+      description: Brief description
+      filters:
+        - type: file_extension
+          pattern: "\\.ext$"
+      actions:
+        - type: suggest
+          message: |
+            # Rule guidance
+            
+            Implementation details...
+      metadata:
+        version: 1.0.0
+      </rule>
+
+      examples:
+        - name: "Example Name"
+          description: "Shows implementation of pattern"
+          input: |
+            # Bad
+            [anti-pattern with explanation]
+            
+            # Good
+            [correct pattern with explanation]
+      ```
+
+      Your new rule will be created in the `output/` directory.
+
+metadata:
+  version: 1.0.0
+</rule>
+
+examples:
+  - name: "Language-Specific Rule Generation"
+    description: "Shows creation of a language-specific rule"
+    input: |
+      # Bad: Vague request without clear requirements
+      "Create a rule for Python"
+
+      # Good: Specific request with requirements
+      "Create a rule for Python that enforces docstring standards. It should require all functions to have descriptive docstrings in Google style format, explaining parameters and return values. Apply to all Python files in the src directory."
+
+      # Response will create a well-structured rule in output/python-docstrings.mdc following the format from SampleRules
+      
+  - name: "General Standard Rule Generation"
+    description: "Shows creation of a general coding standard rule"
+    input: |
+      # Bad: Missing key details
+      "Create a rule for code quality"
+
+      # Good: Detailed requirements
+      "Create a rule for ensuring consistent error handling across the codebase. Errors should be properly logged with context, appropriately wrapped, and include stack traces in development. It should apply to all Go files."
+      
+      # Response will create output/go-error-handling.mdc following SampleRules structure with appropriate examples

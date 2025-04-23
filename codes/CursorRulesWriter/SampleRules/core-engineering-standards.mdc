@@ -1,0 +1,188 @@
+---
+description: "Core team standards for software development, production readiness, and PR workflow."
+globs: ["*.*"]
+alwaysApply: true
+---
+---
+description: "Core team standards for software development, production readiness, and PR workflow."
+globs: ["*.*"]
+alwaysApply: true
+---
+# Core Engineering Standards
+
+Core, shared standards for writing high-quality code, ensuring production readiness, and following consistent source control practices within the team.
+
+> See @cursor-rules-base.mdc for base patterns
+
+/**
+ * @LLMNote: Core team engineering standards that define:
+ * 1. Foundational code quality and architectural principles (Technical Excellence)
+ * 2. Essential development practices (TDD, CI/CD, Observability)
+ * 3. Requirements for production readiness
+ * 4. The standard source control and PR creation workflow (MCP/gh fallback, temp files)
+ */
+<rule>
+name: core_engineering_standards
+description: Core team standards for code quality, practices, production readiness, and PR workflow.
+filters:
+  - type: file_extension
+    pattern: "\\.*$"
+actions:
+  - type: suggest
+    message: |
+      # Core Engineering Standards
+
+      These are the baseline standards expected for all development within the team.
+
+      1. Technical Excellence (Team Principles):
+         - Analyze and identify code smells and technical debt
+         - Design for maintainability, testability, and extensibility
+         - Apply appropriate design patterns where beneficial
+         - Consider system boundaries and modularity
+         - Manage dependencies effectively
+         - Group related logic together to improve readability and locality
+         - Write idiomatic solutions aligned with language-specific best practices
+         - Identify and avoid common (and less common) anti-patterns
+
+      2. Core Engineering Practices (Team Mandates):
+         - Follow test-driven development (TDD) principles
+         - Implement comprehensive CI/CD pipelines for automated testing and deployment
+         - Ensure observability (logging, metrics, tracing) for all services
+         - Use feature flags and progressive delivery for risky changes where appropriate
+         - Optimize performance proactively when bottlenecks are identified
+         - Execute tests automatically during implementation following established conventions
+
+      3. Production Readiness:
+         - Address non-functional requirements (scalability, reliability, security)
+         - Implement proper error handling and reporting
+         - Follow secure coding practices (input validation, output encoding, dependency scanning)
+         - Optimize database interactions (query efficiency, connection pooling)
+         - Manage configuration and secrets securely and properly
+
+      4. Source Control & Pull Request Workflow:
+         *(Note: The following procedures primarily apply when the AI assistant is performing PR operations programmatically using integrated tools like GitHub MCP or the `gh` CLI.)*
+
+         - **PR Description Handling (Temporary File Workflow):**
+           - When creating or updating Pull Request descriptions, ALWAYS first generate the complete, well-formatted Markdown description.
+           - Store this Markdown content in a temporary file located at `.cursor/tasks/PAY-XXX.pr.md` (where `PAY-XXX.md` is the corresponding dev plan).
+           - **Crucial:** Verify the temporary file contains actual newlines, not literal `\n` characters. Correct if necessary before proceeding.
+           - This temporary file approach MUST be used regardless of whether the GitHub MCP tools or the `gh` CLI are employed for the PR operation.
+           - The temporary file (`PAY-XXX.pr.md`) MUST be deleted immediately after the PR creation or update operation succeeds.
+         - **Tool Preference & Fallback:**
+           - **Check Availability:** First, check if GitHub MCP tools (`mcp_GitHub_create_pull_request`, `mcp_GitHub_update_issue`) are available.
+           - **Default (MCP Preferred):** If MCP tools are available, attempt PR operations (e.g., creation, description updates) using them first.
+           - **Fallback (`gh` CLI):**
+             - If MCP tools are *not* available, check if the `gh` CLI is available.
+             - If MCP tools *failed* (due to permission issues, API errors, etc., not authentication), automatically retry the *same* operation using the `gh` CLI if it is available.
+             - If `gh` CLI is the only available tool, use it directly for the operation.
+         - **`gh` CLI Usage:**
+           - When using the `gh` CLI (either explicitly requested or as an automatic fallback):
+             - Always pass the PR description using the temporary file method: `gh pr create --body-file .cursor/tasks/PAY-XXX.pr.md ...` or `gh pr edit <pr_number> --body-file .cursor/tasks/PAY-XXX.pr.md ...`.
+             - Use single quotes (`'...'`) for arguments containing spaces or special characters (e.g., `--title 'My PR Title'`) to minimize shell interpretation errors (`zsh: bad pattern`).
+         - **Confirmation Required Before Action:**
+           - **ALWAYS ask for explicit user confirmation** (e.g., "Shall I proceed?") before executing any PR creation or update action using tools like `mcp_GitHub_create_pull_request`, `mcp_GitHub_update_issue`, `gh pr create`, or `gh pr edit`.
+           - **Before confirming, the user should verify the generated PR description** (e.g., from the temporary file or AI output) is accurate and complete.
+           - **Do NOT proceed** with the action until the user confirms.
+
+metadata:
+  version: 1.1.0
+</rule>
+
+examples:
+  # Examples below demonstrate core principles.
+  - name: "Code Quality Principles (Example)" # Shows good error handling and responsibility
+    description: "Shows implementation of code quality principles like clear error handling and responsibility"
+    input: |
+      # Bad: Poor error handling and unclear responsibility
+      function ProcessOrder(order) {
+          // No error handling
+          data = database.Query("SELECT * FROM orders")
+          // Mixed responsibilities
+          sendEmail(data)
+          updateInventory(data)
+          chargePayment(data)
+      }
+
+      # Good: Clear error handling and single responsibility
+      /**
+       * @LLMNote: Order processing flow that:
+       * 1. Validates the order
+       * 2. Processes it atomically
+       * 3. Handles errors properly
+       */
+      function ProcessOrder(context, order) {
+          // Validate input
+          if (!order.isValid()) {
+              throw new Error("Invalid order data")
+          }
+
+          // Use transaction for atomicity
+          try {
+              transaction = database.beginTransaction()
+              
+              // Process with clear error handling
+              if (!processOrderTransaction(context, transaction, order)) {
+                  transaction.rollback()
+                  throw new Error("Failed to process order transaction")
+              }
+              
+              transaction.commit()
+              return success
+          } catch (error) {
+              transaction.rollback()
+              throw new Error(`Order processing failed: ${error.message}`)
+          }
+      }
+
+  - name: "Production Readiness (Example)" # Shows observability and resilience
+    description: "Shows implementation of production-ready features like observability and resilience"
+    input: |
+      # Bad: No observability or resilience
+      function FetchUserData(userId) {
+          response = http.Get(apiURL + "/users/" + userId)
+          if (response.hasError) {
+              return null
+          }
+          return parseResponse(response)
+      }
+
+      # Good: Proper observability and resilience
+      /**
+       * @LLMNote: User data fetching with:
+       * 1. Proper context handling
+       * 2. Metrics and tracing
+       * 3. Circuit breaker pattern (example, actual implementation may vary)
+       */
+      function FetchUserData(context, userId) {
+          // Start span for tracing (example using hypothetical tracer)
+          span = tracer.StartSpan("FetchUserData")
+          try {
+              // Record metrics (example using hypothetical metrics lib)
+              startTime = getCurrentTime()
+              
+              // Use circuit breaker (example using hypothetical breaker lib)
+              result = circuitBreaker.execute("user_api", function() {
+                  response = httpClient.get(context, apiURL+"/users/"+userId) // Assuming a context-aware client
+                  if (response.hasError) {
+                      throw new Error(`Failed to fetch user ${userId}: ${response.error}`)
+                  }
+                  // Ensure response body is closed (best practice)
+                  if (response.statusCode !== 200) {
+                      // Handle non-200 status codes
+                      throw new Error(`Unexpected status code ${response.statusCode} fetching user ${userId}`)
+                  }
+                  return parseResponse(response) // Assuming parseResponse handles body reading
+              })
+              
+              // Record latency metric
+              metrics.recordLatency("fetch_user_duration", getCurrentTime() - startTime)
+              
+              return result
+          } catch (error) {
+              // Log and handle error
+              logger.error(`User fetch failed: ${error.message}`)
+              throw error // Re-throw or handle as appropriate
+          } finally {
+              span.end()
+          }
+      } 

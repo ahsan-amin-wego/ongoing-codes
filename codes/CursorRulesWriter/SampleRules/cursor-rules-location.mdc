@@ -1,0 +1,71 @@
+---
+description: Standards for placing and organizing Cursor rule files
+globs: [".cursor/rules/*.mdc"]
+alwaysApply: true
+---
+# Cursor Rules Location
+
+Standards for placing and organizing Cursor rule files.
+
+> See @cursor-rules-base.mdc for base template and metadata patterns
+> For rule content standards, see @cursor-rules-creation.mdc
+
+<rule>
+name: cursor_rules_location
+description: Standards for placing Cursor rule files in the correct directory
+filters:
+  - type: path
+    pattern: "\\.cursor/rules/.*\\.mdc$"
+
+actions:
+  - type: suggest
+    message: |
+      # Rule File Organization
+
+      1. File Location:
+         ```
+         .cursor/rules/
+         ├── playwright.mdc           # Test automation
+         ├── formatting.mdc           # Code formatting
+         ├── cursor-rules-*.mdc       # Meta-rules
+         └── ...
+         ```
+         - All rules in .cursor/rules/
+         - No subdirectories allowed
+
+      2. Naming Convention:
+         ```
+         cursor-rules-*.mdc    # Meta-rules
+         domain-*.mdc          # Domain rules
+         feature-*.mdc         # Feature rules
+         ```
+         - Use kebab-case
+         - Always use .mdc extension
+         - Make names descriptive
+
+      3. Organization:
+         - Group related rules
+         - Keep files flat
+         - Use cross-references
+         - Follow version control:
+           - Include in code review
+           - Update version numbers
+           - Maintain compatibility
+
+metadata:
+  version: 1.1
+</rule>
+
+examples:
+  - name: "File Organization"
+    description: "Shows proper file placement and naming"
+    input: |
+      # Bad
+      /rules/MyRule.mdc                    # Wrong location
+      /.cursor/rules/subdirectory/rule.mdc # No subdirectories
+      /.cursor/playwright-rules.mdc        # Wrong location
+      
+      # Good
+      /.cursor/rules/playwright.mdc              # Feature standard
+      /.cursor/rules/cursor-rules-creation.mdc   # Meta-rule
+      /.cursor/rules/auth-flows.mdc              # Domain rule
